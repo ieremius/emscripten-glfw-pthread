@@ -30,7 +30,8 @@ VALID_OPTION_VALUES = {
   'disableWarning': ['true', 'false'],
   'disableJoystick': ['true', 'false'],
   'disableMultiWindow': ['true', 'false'],
-  'optimizationLevel': ['0', '1', '2', '3', 'g', 's', 'z']  # all -OX possibilities
+  'optimizationLevel': ['0', '1', '2', '3', 'g', 's', 'z'],  # all -OX possibilities
+  'pthread': ['true', 'false']
 }
 
 OPTIONS = {
@@ -38,6 +39,7 @@ OPTIONS = {
   'disableJoystick': 'Boolean to disable support for joystick entirely',
   'disableMultiWindow': 'Boolean to disable multi window support which makes the code smaller and faster',
   'optimizationLevel': f'Optimization level: {VALID_OPTION_VALUES["optimizationLevel"]} (default to 2)',
+  'pthread': 'Boolean to enable threading'
 }
 
 # user options (from --use-port)
@@ -45,7 +47,8 @@ opts: Dict[str, Union[str, bool]] = {
   'disableWarning': False,
   'disableJoystick': False,
   'disableMultiWindow': False,
-  'optimizationLevel': '2'
+  'optimizationLevel': '2',
+  'pthread': False
 }
 
 port_name = 'emscripten-glfw3'
@@ -56,6 +59,7 @@ def get_lib_name(settings):
           ('-nw' if opts['disableWarning'] else '') +
           ('-nj' if opts['disableJoystick'] else '') +
           ('-sw' if opts['disableMultiWindow'] else '') +
+          ('-pt' if opts['pthread'] else '') +
           '.a')
 
 
@@ -81,6 +85,9 @@ def get(ports, settings, shared):
 
     if opts['disableMultiWindow']:
       flags += ['-DEMSCRIPTEN_GLFW3_DISABLE_MULTI_WINDOW_SUPPORT']
+
+    if opts['pthread']:
+      flags += ['-pthread']
 
     ports.build_port(source_path, final, port_name, includes=source_include_paths, flags=flags)
 
