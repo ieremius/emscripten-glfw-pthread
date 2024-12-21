@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.23) # required for FILE_SET
 
 set(emscripten-glfw_RELEASE_YEAR  "2024")
 set(emscripten-glfw_RELEASE_MONTH "10"  )

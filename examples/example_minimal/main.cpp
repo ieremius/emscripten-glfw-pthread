@@ -16,7 +16,7 @@
  * @author Yan Pujante
  */
 
-#include <GLFW/glfw3.h>
+#include <GLFW/emscripten_glfw3.h>
 #include <cstdio>
 #include <emscripten/version.h>
 
@@ -32,6 +32,11 @@ int main()
 
   if(!glfwInit())
     return -1;
+
+  // setting the association window <-> canvas
+  // TODO: This is here right now because findCanvasEventTarget() doesn't look at specialHTMLTargets like findEventTarget() does.
+  // Might have to go about addressing that a different way.
+  emscripten::glfw3::SetNextWindowCanvasSelector("#canvas");
 
   auto window = glfwCreateWindow(320, 200, "example_minimal | emscripten-glfw", nullptr, nullptr);
   glfwDestroyWindow(window);

@@ -36,10 +36,6 @@ float emscripten_glfw3_window_get_computed_opacity(GLFWwindow *iWindow);
 void emscripten_glfw3_window_set_opacity(GLFWwindow *iWindow, float iOpacity);
 bool emscripten_glfw3_window_get_computed_visibility(GLFWwindow *iWindow);
 void emscripten_glfw3_window_set_visibility(GLFWwindow *iWindow, bool iVisible);
-void emscripten_glfw3_context_gl_init(GLFWwindow *iWindow);
-void emscripten_glfw3_context_gl_bool_attribute(GLFWwindow *iWindow, char const *iAttributeName, bool iAttributeValue);
-int emscripten_glfw3_context_gl_create_context(GLFWwindow *iWindow);
-int emscripten_glfw3_context_gl_make_context_current(GLFWwindow *iWindow);
 int emscripten_glfw3_context_make_canvas_resizable(GLFWwindow *window, char const *canvasResizeSelector, char const *handleSelector);
 int emscripten_glfw3_context_unmake_canvas_resizable(GLFWwindow *window);
 double emscripten_glfw3_context_get_now();
@@ -477,20 +473,19 @@ bool Window::createGLContext()
 {
   if(fConfig.fClientAPI != GLFW_NO_API)
   {
-    auto id = asOpaquePtr();
-    emscripten_glfw3_context_gl_init(id);
-    emscripten_glfw3_context_gl_bool_attribute(id, "antialias", fConfig.fSamples > 0);
-    emscripten_glfw3_context_gl_bool_attribute(id, "depth", fConfig.fDepthBits > 0);
-    emscripten_glfw3_context_gl_bool_attribute(id, "stencil", fConfig.fStencilBits > 0);
-    emscripten_glfw3_context_gl_bool_attribute(id, "alpha", fConfig.fAlphaBits > 0);
+    EmscriptenWebGLContextAttributes attr;
+    emscripten_webgl_init_context_attributes(&attr);
+    attr.antialias = fConfig.fSamples > 0;
+    attr.depth = fConfig.fDepthBits > 0;
+    attr.stencil = fConfig.fStencilBits > 0;
+    attr.alpha = fConfig.fAlphaBits > 0;
 
-    if(emscripten_glfw3_context_gl_create_context(id) != EMSCRIPTEN_RESULT_SUCCESS)
+    fWebGLContext = emscripten_webgl_create_context(getCanvasSelector(), &attr);
+    if (!fWebGLContext)
     {
       kErrorHandler.logError(GLFW_PLATFORM_ERROR, "Cannot create GL context for [%s]", getCanvasSelector());
       return false;
     }
-
-    fHasGLContext = true;
   }
 
   return true;
@@ -501,8 +496,8 @@ bool Window::createGLContext()
 //------------------------------------------------------------------------
 void Window::makeGLContextCurrent()
 {
-  if(fHasGLContext)
-    emscripten_glfw3_context_gl_make_context_current(asOpaquePtr());
+  if(fWebGLContext)
+    emscripten_webgl_make_context_current(fWebGLContext);
 }
 
 //------------------------------------------------------------------------

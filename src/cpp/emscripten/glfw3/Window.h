@@ -221,7 +221,7 @@ private:
   std::optional<std::string> fTitle{};
   float fOpacity{1.0f};
   int fShouldClose{}; // GLFW bool
-  bool fHasGLContext{};
+  EMSCRIPTEN_WEBGL_CONTEXT_HANDLE fWebGLContext{};
   Mouse fMouse{};
   Keyboard fKeyboard{};
   void *fUserPointer{};
